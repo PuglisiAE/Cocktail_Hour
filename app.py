@@ -3,7 +3,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Cocktail, Notes, Saved, UserCocktail
 from forms import LoginForm, AddUserForm
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from sqlalchemy.exc import IntegrityError, InvalidRequestError
+from sqlalchemy.exc import IntegrityError
 
 
 app=Flask(__name__)
@@ -76,15 +76,17 @@ def signup():
         """create a new user"""
         user = User.register(
             username = form.username.data,
-            password = form.password.data, 
             email = form.email.data,
+            password = form.password.data, 
             dob = form.dob.data)
-
+        print("*******", form.email.data)
         db.session.add(user)
+
         try:
             db.session.commit()
             login_user(user)
             return redirect(f"users/{user.id}")
+
         except IntegrityError:
             """handles create user errors if username already taken"""
             flash(f"Username {form.username.data} has already been taken. Please try again.", 'danger')

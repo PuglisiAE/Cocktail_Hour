@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from sqlalchemy.orm import relationship
 from datetime import datetime
+from flask_login import UserMixin
 
 bcrypt = Bcrypt()
 db = SQLAlchemy()
@@ -15,7 +16,7 @@ def connect_db(app):
 
 # models go below
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     """users info"""
 
     __tablename__ = "users"
@@ -28,7 +29,8 @@ class User(db.Model):
                      unique=True)
     password = db.Column(db.Text, nullable=False,
     )
-    email = db.Column(db.Text, nullable=False, unique=True)
+    email = db.Column(db.Text, nullable=False, unique=True
+    ) 
     dob = db.Column(db.DateTime, nullable=False)
     notes = db.relationship('Notes', backref = "user")
     saved = db.relationship('Saved', backref = "user")
@@ -39,11 +41,21 @@ class User(db.Model):
 
         hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
 
-        user = User(username = username, password = hashed_pwd, dob = dob)
+        user = User(username = username, password = hashed_pwd, email = email, dob = dob)
 
         db.session.add(user)
         return user
+    @classmethod
+    def authenticate(cls, username, password):
+        """Validate that the user exists and password is valid"""
 
+        user = cls.query.filter_by(username=username).first()
+
+        if user:
+            is_auth = bcrypt.check_password_hash(user.password, password)
+            if is_auth:
+                return user
+        return False
 
 
 
