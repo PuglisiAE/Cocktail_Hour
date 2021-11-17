@@ -11,6 +11,8 @@ def connect_db(app):
     db.app = app
     db.init_app(app)
 
+
+
 # models go below
 
 class User(db.Model):
@@ -26,17 +28,29 @@ class User(db.Model):
                      unique=True)
     password = db.Column(db.Text, nullable=False,
     )
-    email = db.Column(db.Text, nullable=False, unique=True,
-    )
-    dob = db.Column(db.String(8), nullable=False)
+    email = db.Column(db.Text, nullable=False, unique=True)
+    dob = db.Column(db.DateTime, nullable=False)
     notes = db.relationship('Notes', backref = "user")
     saved = db.relationship('Saved', backref = "user")
+
+    @classmethod
+    def register(cls, username, password, email, dob):
+        """Register new user with a hashed password, and return the user"""
+
+        hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
+
+        user = User(username = username, password = hashed_pwd, dob = dob)
+
+        db.session.add(user)
+        return user
+
+
 
 
 class Cocktail(db.Model):
     """cocktails info"""
 
-    __tablename__="beers"
+    __tablename__="cocktails"
 
     id = db.Column(db.Integer,
                    primary_key=True,
@@ -52,18 +66,18 @@ class Notes(db.Model):
                    primary_key=True,
                    autoincrement=True)
     
-    cocktail_id = db.Column(db.Integer, db.ForeignKey('cocktail.id'), primary_key = True)
+    cocktail_id = db.Column(db.Integer, db.ForeignKey('cocktails.id'), primary_key = True)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key = True)
 
 
 class Saved(db.Model):
 
     """Info about saved beers"""
 
-    cocktail_id = db.Column(db.Integer, db.ForeignKey('cocktail.id'), primary_key = True)
+    cocktail_id = db.Column(db.Integer, db.ForeignKey('cocktails.id'), primary_key = True)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key = True)
 
 
 class UserCocktail(db.Model):
@@ -75,7 +89,7 @@ class UserCocktail(db.Model):
     
     name = db.Column(db.String(80), nullable = False)
     ingredients = db.Column(db.String(), nullable = False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key = True)
 
 
   
