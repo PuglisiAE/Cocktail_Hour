@@ -19,3 +19,18 @@ class AddUserForm(FlaskForm):
     password = PasswordField('Password', validators=[Length(min=8)])
     dob =  DateField('Date of Birth', format = '%Y-%m-%d', default=datetime.now(), validators=[InputRequired()])
     
+class SearchByNameForm(FlaskForm):
+    """Form for searching by name"""
+
+    name = StringField('Drink Name', validators = [DataRequired()])
+
+
+class SearchByIngredientForm(FlaskForm):
+    """Form for searching by Ingredient"""
+
+    ingredient = StringField('Ingredient', validators = [DataRequired()])
+
+
+  
+
+

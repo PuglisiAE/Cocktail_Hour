@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% for drink in drinks %}
+<div class="card" style="width: 18rem;">
+    <img class="card-img-top" src="{{drink.strDrinkThumb}}" alt="Card image cap">
+    <div class="card-body">
+      <h5 class="card-title">{{drink.strDrink}}</h5>
+      <a href="/search/name/{{drink.strDrink}}" class="btn btn-primary">Learn More</a>
+    </div>
+  </div>
+{% endfor %}
+{% endblock %}

@@ -1,10 +1,10 @@
 from flask import Flask, request, render_template, redirect, flash, session, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Cocktail, Notes, Saved, UserCocktail
-from forms import LoginForm, AddUserForm
+from forms import LoginForm, AddUserForm, SearchByNameForm, SearchByIngredientForm
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from sqlalchemy.exc import IntegrityError
-from methods import get_random_cocktail
+from methods import get_random_cocktail, get_cocktails_by_ingredient_name, get_cocktails_by_name
 
 
 
@@ -54,8 +54,9 @@ def login():
             
     return render_template('login.html', form=form)
 
-
-
+@app.route("/drinks/<letter>", methods = ["GET"])
+def by_letter(letter):
+    return render_template('drinks_list')
 
 
 @app.route("/logout", methods = ["POST"])
@@ -100,10 +101,47 @@ def signup():
 
 @app.route("/users/<int:user_id>", methods = ["POST", "GET"])
 def user_home(user_id):
+    """display use homepage"""
     return render_template('user_home.html')
 
 
-@app.route("/random", methods = ['GET'])
+@app.route("/random", methods = ['GET', 'POST'])
 def get_random():
+    """get a random cocktail"""
     cocktail = get_random_cocktail(cocktails_url)
-    return render_template("random.html", cocktail=cocktail)
+    return render_template("display_cocktail.html", cocktail=cocktail)
+
+
+@app.route("/search/name/", methods = ["GET", "POST"])
+def search_byname():
+    """search for a cocktail by name"""
+    form = SearchByNameForm()
+    
+    
+    if form.validate_on_submit():
+        name = form.name.data
+        cocktail = get_cocktails_by_name(cocktails_url, name)
+        return render_template("display_cocktail.html", cocktail=cocktail)
+    else:
+        return render_template('search.html', form=form)
+
+
+@app.route("/search/ingredient/", methods = ["GET", "POST"])
+def search_byingredient():
+    """search for cocktails by ingredient name"""
+    form = SearchByIngredientForm()
+    
+    if form.validate_on_submit():
+        ingredient = form.ingredient.data
+        cocktail = get_cocktails_by_ingredient_name(cocktails_url, ingredient)
+        return render_template("drinks_list.html", drinks=cocktail)
+
+    else:
+        return render_template('search.html', form=form)
+
+
+@app.route("/search/name/<name>/", methods = ["GET"])
+def retrieve_drink(name):
+    """retrieve drink by name"""
+    cocktail = get_cocktails_by_name(cocktails_url, name)
+    return render_template("display_cocktail.html", cocktail=cocktail)

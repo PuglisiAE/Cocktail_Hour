@@ -13,7 +13,6 @@ class CocktailDetails:
         self.recipe = recipe
 
 
-
 def get_random_cocktail(cocktails_url):
     """return a random cocktail"""
 
@@ -41,6 +40,34 @@ def get_ingredients(obj):
         else:
             ingredients.append({"ingredient": obj[f'strIngredient{i}'],
                                     "measurement": obj[f'strMeasure{i}']
-                                })
-    
+ 
+                               })
+
+def get_cocktails_by_ingredient_name(cocktails_url, ingredient):
+    """get cocktail by user search: ingredient"""
+
+    r = requests.get(f'{cocktails_url}filter.php?i={ingredient}')
+    data = r.json()
+    return data['drinks']
+
+def get_cocktails_by_name(cocktails_url, name):
+    """get cocktail by drink name"""
+
+    r = requests.get(f'{cocktails_url}search.php?s={name}')
+    data = r.json()
+    drink = data['drinks'][0]
+    drink_id = drink['idDrink']
+    name = drink['strDrink']
+    instructions = drink['strInstructions']
+    alcoholic = drink['strAlcoholic']
+    glass = drink['strGlass']
+    img = drink['strDrinkThumb']
+    recipe = get_ingredients(drink)
+
+    return CocktailDetails(drink_id, name, alcoholic, glass, img, recipe, instructions)
+
+
+
+
+
 
