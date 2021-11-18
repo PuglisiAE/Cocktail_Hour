@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<div class="card" style="width: 18rem;">
+    <img class="card-img-top" src="{{cocktail.img}}" alt="Card image cap">
+    <div class="card-body">
+      <h5 class="card-title">{{cocktail.name}}</h5>
+      <p class="card-text">{{cocktail.instructions}}</p>
+    </div>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item">Type: {{cocktail.alcoholic}}</li>
+      <li class="list-group-item">Glass: {{cocktail.glass}}</li>
+      <li class="list-group-item">Ingredient List:</a></li>
+        {% for item in cocktail.recipe %}
+
+         <li>{{item.ingredient}} - {{item.measurement}}</li>
+        {% endfor %}
+
+    </ul>
+    <div class="card-body">
+      <a href="/random" class="card-link">Get Another Drink!</a>
+      <a href="#" class="card-link">Save</a>
+    </div>
+  </div>
+
+
+
+
+{% endblock %}
+
+
+<!-- for thing in recipe:
+ingredient = thing.ingredient
+measurement = thing.measurement -->

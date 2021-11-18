@@ -4,6 +4,8 @@ from models import db, connect_db, User, Cocktail, Notes, Saved, UserCocktail
 from forms import LoginForm, AddUserForm
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from sqlalchemy.exc import IntegrityError
+from methods import get_random_cocktail
+
 
 
 app=Flask(__name__)
@@ -20,6 +22,7 @@ connect_db(app)
 
 login = LoginManager(app)
 login.login_view="home"
+cocktails_url = "http://www.thecocktaildb.com/api/json/v1/1/"
 
 
 @login.user_loader
@@ -32,7 +35,6 @@ def home():
     """Display homepage"""
 
     return render_template('base.html')
-
 
 
 @app.route("/login", methods = ["GET", "POST"])
@@ -61,8 +63,6 @@ def logout():
     """logs out user"""
     logout_user()
     return redirect(url_for('home'))
-
-
 
 
 
@@ -98,6 +98,12 @@ def signup():
 
 
 
-@app.route("/users", methods = ["POST", "GET"])
-def user_home():
+@app.route("/users/<int:user_id>", methods = ["POST", "GET"])
+def user_home(user_id):
     return render_template('user_home.html')
+
+
+@app.route("/random", methods = ['GET'])
+def get_random():
+    cocktail = get_random_cocktail(cocktails_url)
+    return render_template("random.html", cocktail=cocktail)

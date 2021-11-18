@@ -104,4 +104,5 @@ class UserCocktail(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key = True)
 
 
+
   
