@@ -4,7 +4,8 @@ from models import db, connect_db, User, Cocktail, Notes, Saved, UserCocktail
 from forms import LoginForm, AddUserForm, SearchByNameForm, SearchByIngredientForm
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from sqlalchemy.exc import IntegrityError
-from methods import get_random_cocktail, get_cocktails_by_ingredient_name, get_cocktails_by_name
+from methods import get_random_cocktail, get_cocktails_by_ingredient_name, get_cocktails_by_name, get_cocktails_by_first_letter
+import string
 
 
 
@@ -31,10 +32,17 @@ def load_user(user_id):
 
 
 @app.route("/")
-def home():
-    """Display homepage"""
+def welcome():
+    """Display welcome/login/signup links"""
+    
+    return render_template("welcome.html")
 
-    return render_template('base.html')
+
+@app.route("/home/<int:user_id>")
+def home(user_id):
+    """Display homepage"""
+    user = User.query.get_or_404(user_id)
+    return render_template('home.html', user=user)
 
 
 @app.route("/login", methods = ["GET", "POST"])
@@ -46,7 +54,7 @@ def login():
         if user:
             """log in user & redirect to user home page"""
             login_user(user)
-            return redirect(f"users/{user.id}")
+            return redirect(f"/user/{user.id}")
         else:
             """error handling for invalid credentials"""
             flash("Invalid email or password", "danger")
@@ -56,16 +64,19 @@ def login():
 
 @app.route("/drinks/<letter>", methods = ["GET"])
 def by_letter(letter):
-    return render_template('drinks_list')
+    return render_template('drinks_list.html')
 
 
-@app.route("/logout", methods = ["POST"])
-def logout():
+@app.route("/logout/<int:user_id>", methods = ["GET", "POST"])
+def logout(user_id):
     """logs out user"""
-    logout_user()
-    return redirect(url_for('home'))
-
-
+    if current_user.id != user_id:
+        flash("You do not have permission to see this page", "danger")
+        return redirect(f"/user/{current_user.id}")
+    else: 
+        user = User.query.get_or_404(user_id)
+        logout_user()
+        return redirect(url_for("welcome"))
 
 
 @app.route('/signup', methods=["GET", "POST"])
@@ -99,10 +110,16 @@ def signup():
 
 
 
-@app.route("/users/<int:user_id>", methods = ["POST", "GET"])
+@app.route("/user/<int:user_id>", methods = ["POST", "GET"])
 def user_home(user_id):
     """display use homepage"""
-    return render_template('user_home.html')
+    if current_user.id != user_id:
+        flash("You do not have permission to see this page", "danger")
+        return redirect(f"/user/{current_user.id}")
+    
+    else: 
+        user = User.query.get_or_404(user_id)
+        return render_template('user_home.html', user=user)
 
 
 @app.route("/random", methods = ['GET', 'POST'])
@@ -145,3 +162,17 @@ def retrieve_drink(name):
     """retrieve drink by name"""
     cocktail = get_cocktails_by_name(cocktails_url, name)
     return render_template("display_cocktail.html", cocktail=cocktail)
+
+@app.route("/search/<first_letter>", methods = ["GET", "POST"])
+def search_by_letter(first_letter):
+
+    cocktail = get_cocktails_by_first_letter(cocktails_url, first_letter)
+    return render_template(
+             "drinks_list.html", drinks = cocktail)
+
+
+@app.route("/display/", methods = ["GET", "POST"])
+def display():
+    """display alphebet list & link to drinks"""
+
+    return render_template("list_by_letter.html", range = list(string.ascii_uppercase))

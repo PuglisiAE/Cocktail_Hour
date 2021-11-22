@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField, BooleanField, DateField
 from datetime import datetime
-from wtforms.validators import DataRequired, Length,InputRequired, Email
+from wtforms.validators import DataRequired, Length, InputRequired, Email
 
 
 class LoginForm(FlaskForm):
@@ -24,11 +24,12 @@ class SearchByNameForm(FlaskForm):
 
     name = StringField('Drink Name', validators = [DataRequired()])
 
-
 class SearchByIngredientForm(FlaskForm):
     """Form for searching by Ingredient"""
 
     ingredient = StringField('Ingredient', validators = [DataRequired()])
+
+
 
 
   

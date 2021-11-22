@@ -66,6 +66,16 @@ def get_cocktails_by_name(cocktails_url, name):
 
     return CocktailDetails(drink_id, name, alcoholic, glass, img, recipe, instructions)
 
+def get_cocktails_by_first_letter(cocktails_url, first_letter):
+    """get list of cocktails starting with user input letter"""
+
+    r = requests.get(f'{cocktails_url}search.php?f={first_letter}')
+    data = r.json()
+    return data['drinks']
+
+        
+
+
 
 
 

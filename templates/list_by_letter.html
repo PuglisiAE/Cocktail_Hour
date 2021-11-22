@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<ul>
+    {% for letter in range %}
+    <li>
+        <a href="/search/{{letter}}" class="a-drinks">{{letter}}</a>
+    </li>
+    {% endfor %}
+</ul>
+
+
+{% endblock %}
