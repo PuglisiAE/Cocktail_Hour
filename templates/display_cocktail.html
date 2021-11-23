@@ -2,7 +2,7 @@
 
 
 {% block content %}
-
+<div class="card-columns">
 <div class="card" style="width: 18rem;">
     <img class="card-img-top" src="{{cocktail.img}}" alt="Card image cap">
     <div class="card-body">
@@ -12,7 +12,7 @@
     <ul class="list-group list-group-flush">
       <li class="list-group-item">Type: {{cocktail.alcoholic}}</li>
       <li class="list-group-item">Glass: {{cocktail.glass}}</li>
-      <li class="list-group-item">Ingredient List:</a></li>
+      <ll class="list-group-item">Ingredient List:</a></li>
         {% for item in cocktail.recipe %}
 
          <li>{{item.ingredient}} - {{item.measurement}}</li>
@@ -21,8 +21,11 @@
     </ul>
     <div class="card-body">
       <a href="/random" class="card-link">Get Another Drink!</a>
-      <a href="#" class="card-link">Save</a>
+      <form action = "/drink/{{cocktail.drink_id}}/save" method = "POST">
+      <button class="card-link">Save</button>
+      </form>
     </div>
   </div>
+</div>
 
 {% endblock %}

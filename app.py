@@ -4,7 +4,7 @@ from models import db, connect_db, User, Cocktail, Notes, Saved, UserCocktail
 from forms import LoginForm, AddUserForm, SearchByNameForm, SearchByIngredientForm
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from sqlalchemy.exc import IntegrityError
-from methods import get_random_cocktail, get_cocktails_by_ingredient_name, get_cocktails_by_name, get_cocktails_by_first_letter
+from api_helper import CocktailDetails, cocktails_url
 import string
 
 
@@ -23,7 +23,7 @@ connect_db(app)
 
 login = LoginManager(app)
 login.login_view="home"
-cocktails_url = "http://www.thecocktaildb.com/api/json/v1/1/"
+
 
 
 @login.user_loader
@@ -39,10 +39,11 @@ def welcome():
 
 
 @app.route("/home/<int:user_id>")
+@login_required
 def home(user_id):
     """Display homepage"""
-    user = User.query.get_or_404(user_id)
-    return render_template('home.html', user=user)
+    current_user = User.query.get_or_404(user_id)
+    return render_template('home.html', current_user=current_user)
 
 
 @app.route("/login", methods = ["GET", "POST"])
@@ -97,7 +98,7 @@ def signup():
         try:
             db.session.commit()
             login_user(user)
-            return redirect(f"users/{user.id}")
+            return redirect(f"/home/{user.id}")
 
         except IntegrityError:
             """handles create user errors if username already taken"""
@@ -111,6 +112,7 @@ def signup():
 
 
 @app.route("/user/<int:user_id>", methods = ["POST", "GET"])
+@login_required
 def user_home(user_id):
     """display use homepage"""
     if current_user.id != user_id:
@@ -118,61 +120,93 @@ def user_home(user_id):
         return redirect(f"/user/{current_user.id}")
     
     else: 
-        user = User.query.get_or_404(user_id)
-        return render_template('user_home.html', user=user)
+        return render_template('user_home.html', user=current_user)
 
 
 @app.route("/random", methods = ['GET', 'POST'])
+@login_required
 def get_random():
     """get a random cocktail"""
-    cocktail = get_random_cocktail(cocktails_url)
+    cocktail = CocktailDetails.get_random_cocktail(cocktails_url)
     return render_template("display_cocktail.html", cocktail=cocktail)
 
-
-@app.route("/search/name/", methods = ["GET", "POST"])
-def search_byname():
-    """search for a cocktail by name"""
-    form = SearchByNameForm()
-    
-    
-    if form.validate_on_submit():
-        name = form.name.data
-        cocktail = get_cocktails_by_name(cocktails_url, name)
-        return render_template("display_cocktail.html", cocktail=cocktail)
-    else:
-        return render_template('search.html', form=form)
-
-
-@app.route("/search/ingredient/", methods = ["GET", "POST"])
-def search_byingredient():
-    """search for cocktails by ingredient name"""
-    form = SearchByIngredientForm()
-    
-    if form.validate_on_submit():
-        ingredient = form.ingredient.data
-        cocktail = get_cocktails_by_ingredient_name(cocktails_url, ingredient)
-        return render_template("drinks_list.html", drinks=cocktail)
-
-    else:
-        return render_template('search.html', form=form)
 
 
 @app.route("/search/name/<name>/", methods = ["GET"])
-def retrieve_drink(name):
+@login_required
+def search_name(name):
     """retrieve drink by name"""
-    cocktail = get_cocktails_by_name(cocktails_url, name)
+    cocktails = CocktailDetails.get_cocktails_by_name(name)
+    return render_template("drinks_list.html", drinks=cocktails)
+
+
+
+@app.route("/search/ingredient/<ingredient>/", methods = ["GET"])
+@login_required
+def search_ing(ingredient):
+    """retrieve drink by name"""
+    cocktail = CocktailDetails.get_cocktails_by_ingredient_name(ingredient)
     return render_template("display_cocktail.html", cocktail=cocktail)
 
-@app.route("/search/<first_letter>", methods = ["GET", "POST"])
-def search_by_letter(first_letter):
 
-    cocktail = get_cocktails_by_first_letter(cocktails_url, first_letter)
+
+@app.route("/search/<first_letter>", methods = ["GET", "POST"])
+@login_required
+def search_by_letter(first_letter):
+    """gets drinks by first letter"""
+    cocktail = CocktailDetails.get_cocktails_by_first_letter(first_letter)
     return render_template(
              "drinks_list.html", drinks = cocktail)
 
 
-@app.route("/display/", methods = ["GET", "POST"])
-def display():
-    """display alphebet list & link to drinks"""
+@app.route("/search", methods=['GET'])
+@login_required
+def search():
+    """handles user searches"""
+    name_form = SearchByNameForm()
+    ingredient_form = SearchByIngredientForm()
+    range = list(string.ascii_uppercase)
 
-    return render_template("list_by_letter.html", range = list(string.ascii_uppercase))
+    return render_template('search.html', name_form = name_form, ingredient_form = ingredient_form, range = range)
+
+
+@app.route("/search/name", methods = ['POST'])
+@login_required
+def post_search():
+    """handles name search route"""
+    name_form = SearchByNameForm()
+
+    if name_form.validate_on_submit():
+        name = name_form.name.data
+        return redirect(f"/search/name/{name}")
+
+
+@app.route("/search/ingredient", methods = ['POST'])
+@login_required
+def ingredient_search():
+    """handles ingredient search route"""
+
+    ingredient_form = SearchByIngredientForm()
+
+    if ingredient_form.validate_on_submit():
+        ingredient = ingredient_form.ingredient.data
+        return redirect(f"/search/ingredient/{ingredient}")
+
+@app.route("/drink/<drink_id>", methods = ["GET"])
+@login_required
+def drink_details(drink_id):
+    """displays drink info"""
+    cocktail = CocktailDetails.get_drink_by_id(drink_id)
+    return render_template("display_cocktail.html", cocktail=cocktail)
+    
+@app.route("/drink/<drink_id>/save", methods=["POST"])
+@login_required
+def save_drink(drink_id):
+    cocktail_from_api = CocktailDetails.get_drink_by_id(drink_id)
+    my_cocktail = Cocktail(id = cocktail_from_api.drink_id, name=cocktail_from_api.name, drink_img_url=cocktail_from_api.img)
+    db.session.add(my_cocktail)
+    current_user.saved_cocktails.append(my_cocktail)
+    db.session.commit()
+    flash("Saved!")
+    return redirect (f"/user/{current_user.id}")
+    

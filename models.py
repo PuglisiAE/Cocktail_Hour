@@ -33,7 +33,13 @@ class User(db.Model, UserMixin):
     ) 
     dob = db.Column(db.DateTime, nullable=False)
     notes = db.relationship('Notes', backref = "user")
-    saved = db.relationship('Saved', backref = "user")
+    saved_cocktails = db.relationship('Cocktail', secondary = "saved_cocktails", backref = "user")
+
+
+    def saved_cocktail(self, cocktail):
+
+        self.saved.append(cocktail)
+        db.session.commit()
 
     @classmethod
     def register(cls, username, password, email, dob):
@@ -45,6 +51,7 @@ class User(db.Model, UserMixin):
 
         db.session.add(user)
         return user
+
     @classmethod
     def authenticate(cls, username, password):
         """Validate that the user exists and password is valid"""
@@ -58,15 +65,13 @@ class User(db.Model, UserMixin):
         return False
 
 
-
 class Cocktail(db.Model):
     """cocktails info"""
 
     __tablename__="cocktails"
 
     id = db.Column(db.Integer,
-                   primary_key=True,
-                   autoincrement=True)
+                   primary_key=True)
     name = db.Column(db.String(80), nullable = False, unique=True)
     drink_img_url = db.Column(db.String(), nullable = True)
 
@@ -74,6 +79,7 @@ class Cocktail(db.Model):
 class Notes(db.Model):
     """Info about user notes"""
 
+    __tablename__ = "notes"
     id = db.Column(db.Integer,
                    primary_key=True,
                    autoincrement=True)
@@ -85,8 +91,9 @@ class Notes(db.Model):
 
 class Saved(db.Model):
 
-    """Info about saved beers"""
+    """Info about saved cocktails"""
 
+    __tablename__ = "saved_cocktails"
     cocktail_id = db.Column(db.Integer, db.ForeignKey('cocktails.id'), primary_key = True)
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key = True)
@@ -95,6 +102,8 @@ class Saved(db.Model):
 class UserCocktail(db.Model):
     """User created cocktail"""
 
+    __tablename__ = "user_cocktails"
+
     id = db.Column(db.Integer,
                    primary_key=True,
                    autoincrement=True)
@@ -102,6 +111,14 @@ class UserCocktail(db.Model):
     name = db.Column(db.String(80), nullable = False)
     ingredients = db.Column(db.String(), nullable = False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key = True)
+
+
+# class UserCocktailIngredient(db.Model):
+#     id = db.Column(db.Integer,
+#                    primary_key=True,
+#                    autoincrement=True)
+#     cocktail_id = db.Column(db.Integer, db.ForeignKey('user_cocktail.id'), primary_key = True)
+#     ingredient = db.Column(db.String(), nullable = False)
 
 
 

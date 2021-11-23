@@ -1,11 +1,22 @@
 {% extends 'base.html' %}
 
-
-
-
 {% block content %}
 
 <p>User Content Goes Here:</p>
-<div>{{user.username}}</div>
+<div>Username: {{user.username}}</div>
+
+<h3>Saved Drinks</h3>
+{% for drink in user.saved_cocktails %}
+<div class="card-columns">
+    <div class="card" style="width: 18rem;">
+    <img class="card-img-top" src="{{drink.drink_img_url}}" alt="Card image cap">
+    <div class="card-body">
+      <h5 class="card-title">{{drink.name}}</h5>
+      <a href="/drink/{{drink.id}}" class="btn btn-primary">Learn More</a>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
 
 {% endblock %}

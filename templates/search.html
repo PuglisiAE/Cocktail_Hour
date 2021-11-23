@@ -5,21 +5,47 @@
 
 <div class="row justify-content-md-center">
     <div class="col-md-7 col-lg-5">
-      <h2 class="join-message">Search Form</h2>
+      <h4 class="join-message">Search By Drink Name</h4>
 
-      <form method="POST" id="search_form">
-        {{ form.hidden_tag() }}
+      <form method="POST" action = "/search/name" id="name_form">
+        {{ name_form.hidden_tag() }}
 
-        {% for field in form if field.widget.input_type != 'hidden' %}
+        {% for field in name_form if field.widget.input_type != 'hidden' %}
           {% for error in field.errors %}
             <span class="text-danger">{{ error }}</span>
           {% endfor %}
           {{ field(placeholder=field.label.text, class="form-control") }}
         {% endfor %}
 
-        <button class="btn btn-primary btn-block btn-lg">Submit</button>
+        <button class="btn btn-primary btn-block btn-sm">Submit</button>
       </form>
     </div>
   </div>
+
+  <div class="row justify-content-md-center">
+    <div class="col-md-7 col-lg-5">
+      <h4 class="join-message">Search By Ingredient Name</h4>
+
+      <form method="POST" action = "/search/ingredient" id="ingredient_form">
+        {{ ingredient_form.hidden_tag() }}
+
+        {% for field in ingredient_form if field.widget.input_type != 'hidden' %}
+          {% for error in field.errors %}
+            <span class="text-danger">{{ error }}</span>
+          {% endfor %}
+          {{ field(placeholder=field.label.text, class="form-control") }}
+        {% endfor %}
+
+        <button class="btn btn-primary btn-block btn-sm">Submit</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="row justify-content-md-center">
+    <div class="col-md-7 col-lg-5">
+      <h4 class="join-message">List All Drinks By First Letter</h4>
+        {% for letter in range %}
+                <a href="/search/{{letter}}" class="a-drinks">{{letter}}</a>
+        {% endfor %}
 
 {% endblock %}
