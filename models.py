@@ -113,12 +113,12 @@ class UserCocktail(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key = True)
 
 
-# class UserCocktailIngredient(db.Model):
-#     id = db.Column(db.Integer,
-#                    primary_key=True,
-#                    autoincrement=True)
-#     cocktail_id = db.Column(db.Integer, db.ForeignKey('user_cocktail.id'), primary_key = True)
-#     ingredient = db.Column(db.String(), nullable = False)
+class UserCocktailIngredient(db.Model):
+    id = db.Column(db.Integer,
+                   primary_key=True,
+                   autoincrement=True)
+    cocktail_id = db.Column(db.Integer, db.ForeignKey('user_cocktail.id'), primary_key = True)
+    ingredient = db.Column(db.String(), nullable = False)
 
 
 

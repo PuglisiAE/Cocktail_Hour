@@ -21,8 +21,13 @@
     </ul>
     <div class="card-body">
       <a href="/random" class="card-link">Get Another Drink!</a>
+      {% if cocktail.drink_id not in saved_ids %}
       <form action = "/drink/{{cocktail.drink_id}}/save" method = "POST">
       <button class="card-link">Save</button>
+      {% else %}
+      <form action = "/user/{{current_user.id}}">
+      <button class="card-link">Back</button>
+      {% endif %}
       </form>
     </div>
   </div>

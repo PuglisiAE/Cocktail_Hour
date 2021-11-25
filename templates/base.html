@@ -32,6 +32,9 @@
             <a class="nav-link" href="/user/{{current_user.id}}">User Page</a>
           </li>
           <li class="nav-item">
+            <a class="nav-link" href="/user/{{current_user.id}}/edit">Edit Profile</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" href="/logout/{{current_user.id}}" methods ="POST">Logout</a>
           </li>
         </ul>
@@ -39,8 +42,11 @@
       </div>
 </nav>
     <h1>{% block title %}{% endblock %}</h1>
-
+  {% for category, message in get_flashed_messages(with_categories=True) %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+  {% endfor %}
     <div>
+    
     {% block content %}
     {% endblock %}
     </div>

@@ -1,6 +1,6 @@
 
 import requests
-from models import db, connect_db, User, Cocktail, Notes, Saved, UserCocktail
+from models import db, connect_db, User, Cocktail, Notes, Saved, UserCocktail, UserCocktailIngredient
 
 cocktails_url = "http://www.thecocktaildb.com/api/json/v1/1"
 
@@ -33,7 +33,7 @@ class CocktailDetails:
 
     @staticmethod
     def get_ingredients(obj):
-        """get list ingredients"""
+        """get list of specific cocktail ingredients"""
 
         ingredients = []
         i = 1
@@ -83,6 +83,17 @@ class CocktailDetails:
         recipe = CocktailDetails.get_ingredients(drink)
 
         return CocktailDetails(drink_id, name, alcoholic, glass, img, recipe, instructions)
+
+    @staticmethod
+    def get_all_ingredients():
+
+        r = requests.get(f'{cocktails_url}/list.php?i=list')
+        data = r.json()
+        ingredients = data['drinks']
+        return sorted([ingredient["strIngredient1"] for ingredient in ingredients])
+
+
+
 
 
 

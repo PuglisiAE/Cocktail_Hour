@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, redirect, flash, session, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 from models import db, connect_db, User, Cocktail, Notes, Saved, UserCocktail
-from forms import LoginForm, AddUserForm, SearchByNameForm, SearchByIngredientForm
+from forms import LoginForm, AddUserForm, SearchByNameForm, SearchByIngredientForm, CreateDrinkForm, EditUserForm
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from sqlalchemy.exc import IntegrityError
 from api_helper import CocktailDetails, cocktails_url
@@ -22,7 +22,7 @@ login_manager = LoginManager()
 connect_db(app)
 
 login = LoginManager(app)
-login.login_view="home"
+login.login_view="welcome"
 
 
 
@@ -30,21 +30,14 @@ login.login_view="home"
 def load_user(user_id):
     return User.query.get(user_id)
 
-
+#################### home route
 @app.route("/")
 def welcome():
     """Display welcome/login/signup links"""
     
     return render_template("welcome.html")
 
-
-@app.route("/home/<int:user_id>")
-@login_required
-def home(user_id):
-    """Display homepage"""
-    current_user = User.query.get_or_404(user_id)
-    return render_template('home.html', current_user=current_user)
-
+################### authentication routes
 
 @app.route("/login", methods = ["GET", "POST"])
 def login():
@@ -63,19 +56,15 @@ def login():
             
     return render_template('login.html', form=form)
 
-@app.route("/drinks/<letter>", methods = ["GET"])
-def by_letter(letter):
-    return render_template('drinks_list.html')
-
 
 @app.route("/logout/<int:user_id>", methods = ["GET", "POST"])
+@login_required
 def logout(user_id):
     """logs out user"""
     if current_user.id != user_id:
         flash("You do not have permission to see this page", "danger")
         return redirect(f"/user/{current_user.id}")
     else: 
-        user = User.query.get_or_404(user_id)
         logout_user()
         return redirect(url_for("welcome"))
 
@@ -110,6 +99,15 @@ def signup():
 
 
 
+################### user routes
+
+@app.route("/home/<int:user_id>")
+@login_required
+def home(user_id):
+    """Display homepage"""
+    current_user = User.query.get_or_404(user_id)
+    return render_template('home.html', current_user=current_user)
+
 
 @app.route("/user/<int:user_id>", methods = ["POST", "GET"])
 @login_required
@@ -122,6 +120,50 @@ def user_home(user_id):
     else: 
         return render_template('user_home.html', user=current_user)
 
+@app.route("/user/<int:user_id>/edit", methods = ['GET', 'POST'])
+@login_required
+def edit_user(user_id):
+    """edit a user"""
+
+    current_user = User.query.get_or_404(user_id)
+
+    if current_user.id != user_id:
+        flash("You do not have permission to access this page", "danger")
+        return redirect(f"/user/{current_user.id}")
+
+    form = EditUserForm(obj = current_user)
+    
+   
+    if current_user.authenticate(current_user.username, form.password.data):
+            current_user.username = form.username.data
+            current_user.email = form.email.data
+            current_user.dob = form.dob.data
+
+            db.session.commit()
+
+            return redirect(f"/user/{current_user.id}")
+    else:
+         return render_template('edit_user.html', form = form)
+
+@app.route("/user/<int:user_id>/delete", methods = ["POST"])
+@login_required
+def delete_user(user_id):
+    """delete a user"""
+    if current_user.id != user_id:
+        flash("You do not have permission to access this page", "danger")
+        return redirect(f"/user/{current_user.id}")
+
+
+    else:
+
+        db.session.delete(current_user)
+        db.session.commit()
+        logout_user()
+
+
+    return redirect("/")
+################### cocktail routes
+
 
 @app.route("/random", methods = ['GET', 'POST'])
 @login_required
@@ -130,24 +172,24 @@ def get_random():
     cocktail = CocktailDetails.get_random_cocktail(cocktails_url)
     return render_template("display_cocktail.html", cocktail=cocktail)
 
-
-
-@app.route("/search/name/<name>/", methods = ["GET"])
+@app.route("/drinks/<letter>", methods = ["GET"])
 @login_required
-def search_name(name):
+def by_letter(letter):
+    return render_template('drinks_list.html')
+
+@app.route("/display/name/<name>/", methods = ["GET"])
+@login_required
+def display_name(name):
     """retrieve drink by name"""
     cocktails = CocktailDetails.get_cocktails_by_name(name)
     return render_template("drinks_list.html", drinks=cocktails)
 
-
-
-@app.route("/search/ingredient/<ingredient>/", methods = ["GET"])
+@app.route("/display/ingredient/<ingredient>/", methods = ["GET"])
 @login_required
-def search_ing(ingredient):
-    """retrieve drink by name"""
+def display_ing(ingredient):
+    """retrieve drink by ingredient name"""
     cocktail = CocktailDetails.get_cocktails_by_ingredient_name(ingredient)
-    return render_template("display_cocktail.html", cocktail=cocktail)
-
+    return render_template("drinks_list.html", drinks=cocktail)
 
 
 @app.route("/search/<first_letter>", methods = ["GET", "POST"])
@@ -165,6 +207,8 @@ def search():
     """handles user searches"""
     name_form = SearchByNameForm()
     ingredient_form = SearchByIngredientForm()
+    ingredient_choices = CocktailDetails.get_all_ingredients()
+    # ingredient_form.ingredient.choices = ingredient_choices
     range = list(string.ascii_uppercase)
 
     return render_template('search.html', name_form = name_form, ingredient_form = ingredient_form, range = range)
@@ -178,7 +222,7 @@ def post_search():
 
     if name_form.validate_on_submit():
         name = name_form.name.data
-        return redirect(f"/search/name/{name}")
+        return redirect(f"/display/name/{name}")
 
 
 @app.route("/search/ingredient", methods = ['POST'])
@@ -190,23 +234,72 @@ def ingredient_search():
 
     if ingredient_form.validate_on_submit():
         ingredient = ingredient_form.ingredient.data
-        return redirect(f"/search/ingredient/{ingredient}")
+        return redirect(f"/display/ingredient/{ingredient}")
+
 
 @app.route("/drink/<drink_id>", methods = ["GET"])
 @login_required
 def drink_details(drink_id):
     """displays drink info"""
     cocktail = CocktailDetails.get_drink_by_id(drink_id)
-    return render_template("display_cocktail.html", cocktail=cocktail)
+
+    saved_ids = [str(cocktail.id) for cocktail in current_user.saved_cocktails]
     
+    
+    print("15288" not in saved_ids)
+    return render_template("display_cocktail.html", cocktail=cocktail, saved_ids = saved_ids)
+    
+
 @app.route("/drink/<drink_id>/save", methods=["POST"])
 @login_required
 def save_drink(drink_id):
+
     cocktail_from_api = CocktailDetails.get_drink_by_id(drink_id)
     my_cocktail = Cocktail(id = cocktail_from_api.drink_id, name=cocktail_from_api.name, drink_img_url=cocktail_from_api.img)
     db.session.add(my_cocktail)
-    current_user.saved_cocktails.append(my_cocktail)
-    db.session.commit()
+    try:
+        current_user.saved_cocktails.append(my_cocktail)
+        db.session.commit()
+      
+    except IntegrityError:
+        db.session.rollback()
+        cocktail = Cocktail.query.get_or_404(drink_id)
+        current_user.saved_cocktails.append(cocktail)
+        db.session.commit()
+        
     flash("Saved!")
     return redirect (f"/user/{current_user.id}")
-    
+
+
+@app.route("/drink/<drink_id>/delete", methods = ["POST"])
+@login_required
+def delete_saved_drink(drink_id):
+
+    drink = Cocktail.query.get_or_404(drink_id)
+    current_user.saved_cocktails.remove(drink)
+    db.session.commit()
+
+    if not drink.user:
+        db.session.delete(drink)
+        db.session.commit()
+
+    return redirect(f"/user/{current_user.id}")
+
+@app.route("/ingredients/list", methods = ["GET"])
+@login_required
+def list_ingredients():
+    ingredient_list = IngredientDetails.get_all_ingredients()
+    ingredients = [(ingredient.name) for ingredient in ingredient_list]
+    form = CreateDrinkForm()
+    form.ingredients.choices = ingredients
+    return render_template("create_cocktail.html", ingredients=ingredients, form=form)
+
+
+@app.route("/ingredients/list", methods = ["POST"])
+@login_required
+def submit_ingredients():
+    ingredients = [(ingredient.name) for ingredient in ingredient_list]
+    if ingredient_form.validate_on_submit():
+        form = CreateDrinkForm(request.form)
+        form.check_options.choices = ingredients
+        return render_template("")

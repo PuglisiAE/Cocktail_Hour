@@ -2,9 +2,6 @@
 
 {% block content %}
 
-<p>User Content Goes Here:</p>
-<div>Username: {{user.username}}</div>
-
 <h3>Saved Drinks</h3>
 {% for drink in user.saved_cocktails %}
 <div class="card-columns">
@@ -12,7 +9,9 @@
     <img class="card-img-top" src="{{drink.drink_img_url}}" alt="Card image cap">
     <div class="card-body">
       <h5 class="card-title">{{drink.name}}</h5>
-      <a href="/drink/{{drink.id}}" class="btn btn-primary">Learn More</a>
+      <a href="/drink/{{drink.id}}" class="btn btn-primary btn-sm">Details</a>
+    <form action ="/drink/{{drink.id}}/delete" method = "POST">
+      <button  class = "btn btn-danger btn-sm">Delete</button> </form>  
     </div>
   </div>
 </div>
