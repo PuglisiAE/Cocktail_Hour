@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h3>Saved Drinks</h3>
+<h3>Saved Cocktails</h3>
 {% for drink in user.saved_cocktails %}
 <div class="card-columns">
     <div class="card" style="width: 18rem;">
@@ -17,5 +17,35 @@
 </div>
 {% endfor %}
 
+
+<h3>Created Cocktails</h3>
+{% for drink in user.user_cocktails %}
+<div class="card-columns">
+    <div class="card" style="width: 18rem;">
+        <img class="card-img-top" src="{{drink.drink_img_url}}" alt="Card image cap">
+        <div class="card-body">
+          <h5 class="card-title">{{drink.name}}</h5>
+          <p class="card-text">{{drink.instructions}}</p>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">Type: {{drink.alcoholic}}</li>
+          <li class="list-group-item">Glass: {{drink.glass}}</li>
+          <ll class="list-group-item">Ingredient List:</a></li>
+            {% for item in drink.recipe %}
+    
+             <li style="list-style-type: none;">{{item.name}}: {{item.amount}}{{item.measurement}}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div>
+    <form action ="/user/{{user.id}}/{{drink.id}}/delete" method = "POST">
+      <button  class = "btn btn-danger btn-sm">Delete</button> </form>  
+    <form action ="/user/{{user.id}}/{{drink.id}}/edit_cocktail" method = "POST">
+      <button  class = "btn btn-primary btn-sm">Edit</button> </form> 
+    </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
 
 {% endblock %}

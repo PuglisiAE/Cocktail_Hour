@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, BooleanField, DateField, SelectField, widgets, SelectMultipleField
+from wtforms import StringField, PasswordField, TextAreaField, BooleanField, DateField, SelectField, widgets, SelectMultipleField, Form, DecimalField
 from datetime import datetime
 from wtforms.validators import DataRequired, Length, InputRequired, Email
 from api_helper import CocktailDetails
+
 
 class LoginForm(FlaskForm):
     """Login form."""
@@ -40,15 +41,27 @@ class SearchByIngredientForm(FlaskForm):
     ingredient = SelectField('Ingredient', choices = CocktailDetails.get_all_ingredients(), validators = [DataRequired()])
 
 
-class MultiCheckboxField(SelectMultipleField):
-    widget = widgets.ListWidget(prefix_label=False)
-    option_widget = widgets.CheckboxInput()
+# class MultiCheckboxField(SelectMultipleField):
+#     widget = widgets.ListWidget(prefix_label=False)
+#     option_widget = widgets.CheckboxInput()
+
+
+class IngredientForm(FlaskForm):
+    name = StringField('Ingredient')
+    amount = StringField('Amount')
+    measurement = StringField('Measurement')
 
 class CreateDrinkForm(FlaskForm):
-    """Form for creating a drink from ingredient list"""
-
-    ingredients = MultiCheckboxField('Ingredients', coerce=str)
+    name = StringField('Cocktail Name')
+    instructions = TextAreaField('Instructions')
+    alcoholic = SelectField('Alcoholic', choices = ["Alcoholic", "Non-Alcoholic"], validators = [DataRequired()])
+    glass = StringField('Glass Type')
+    drink_img_url = StringField('Drink Image URL')
     
+
+
+
+
 
 
 

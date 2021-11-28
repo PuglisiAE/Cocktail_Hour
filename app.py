@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, redirect, flash, session, url_for
 from flask_debugtoolbar import DebugToolbarExtension
-from models import db, connect_db, User, Cocktail, Notes, Saved, UserCocktail
-from forms import LoginForm, AddUserForm, SearchByNameForm, SearchByIngredientForm, CreateDrinkForm, EditUserForm
+from models import db, connect_db, User, Cocktail, Saved, UserCocktail, UserCocktailIngredient
+from forms import LoginForm, AddUserForm, SearchByNameForm, SearchByIngredientForm, CreateDrinkForm, EditUserForm, CreateDrinkForm, IngredientForm
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from sqlalchemy.exc import IntegrityError
 from api_helper import CocktailDetails, cocktails_url
@@ -53,6 +53,7 @@ def login():
             """error handling for invalid credentials"""
             flash("Invalid email or password", "danger")
             return redirect(url_for('login'))
+    print("************", current_user)
             
     return render_template('login.html', form=form)
 
@@ -162,6 +163,130 @@ def delete_user(user_id):
 
 
     return redirect("/")
+
+################  user created cocktail routes
+
+
+@app.route("/user/<int:user_id>/create_cocktail/", methods = ['GET', 'POST'])
+@login_required
+def create_cocktail(user_id):
+    """create a cocktail"""
+    form = CreateDrinkForm()
+
+    if form.validate_on_submit():
+        user_cocktail = UserCocktail(
+            name = form.name.data,
+            instructions = form.instructions.data,
+            alcoholic = form.alcoholic.data,
+            glass = form.glass.data,
+            drink_img_url = form.drink_img_url.data,
+            user_id = user_id
+        )
+        
+        db.session.add(user_cocktail)
+        db.session.commit()
+   
+        return redirect(f"/user/{user_id}/{user_cocktail.id}/add_ingredients")
+    else:
+        return render_template("create_drink.html", form=form)
+
+
+
+@app.route("/user/<int:user_id>/<int:cocktail_id>/add_ingredients/", methods = ['GET', 'POST'])
+@login_required
+def add_ingredients_to_user_cocktail(user_id, cocktail_id):
+    form = IngredientForm()
+    cocktail = UserCocktail.query.get_or_404(cocktail_id)
+
+    if form.validate_on_submit():
+        ingredient_for_cocktail = UserCocktailIngredient(
+            cocktail_id = cocktail_id,
+            name = form.name.data, 
+            amount = form.amount.data, 
+            measurement = form.measurement.data
+        )
+
+        db.session.add(ingredient_for_cocktail)
+        db.session.commit()
+
+        return redirect(f"/user/{user_id}/{cocktail_id}/add_ingredients")
+    
+    else:
+        return render_template("add_ingredients.html", form = form, cocktail = cocktail, user_id = user_id)
+
+
+
+@app.route("/user/<int:user_id>/<int:cocktail_id>/edit_cocktail", methods = ['GET', 'POST'])
+@login_required
+def edit_ingredients_for_user_cocktail(user_id, cocktail_id):   
+
+    cocktail = UserCocktail.query.get_or_404(cocktail_id)
+    form = CreateDrinkForm(obj = cocktail)
+
+    if form.validate_on_submit():
+        cocktail.name = form.name.data
+        cocktail.instructions = form.instructions.data
+        cocktail.alcoholic = form.alcoholic.data
+        cocktail.glass = form.glass.data
+        cocktail.drink_img_url = form.drink_img_url.data
+        user_id = user_id
+
+        db.session.commit()
+    
+        return redirect (f"/user/{current_user.id}")
+    
+    else:
+        return render_template("edit_user_cocktail.html", form = form, cocktail = cocktail, user = current_user)
+
+
+    
+@app.route("/user/<int:user_id>/<int:cocktail_id>/delete", methods = ['GET', 'POST'])
+@login_required
+def delete_user_cocktail(user_id, cocktail_id):
+
+    cocktail = UserCocktail.query.get_or_404(cocktail_id)
+    db.session.delete(cocktail)
+    db.session.commit()
+        
+    return redirect(f"/user/{user_id}")
+
+
+@app.route("/user/<int:user_id>/<int:cocktail_id>/<int:ingredient_id>/edit_ingredients", methods = ['GET', 'POST'])
+@login_required
+def edit_user_ingredients(user_id, cocktail_id, ingredient_id):
+
+    ingredient = UserCocktailIngredient.query.get_or_404(ingredient_id)
+    form = IngredientForm(obj = ingredient)
+
+    if form.validate_on_submit():
+        
+        ingredient.name = form.name.data, 
+        ingredient.amount = form.amount.data, 
+        ingredient.measurement = form.measurement.data
+        
+        db.session.commit()
+
+        return redirect(f"/user/{user_id}/{cocktail_id}/edit_cocktail")
+
+    else:
+
+        return render_template('edit_ingredients.html', form = form, user_id = user_id, cocktail_id = cocktail_id, ingredient_id = ingredient_id)
+
+
+
+@app.route("/user/<int:user_id>/<int:cocktail_id>/<int:ingredient_id>/delete_ingredient", methods = ['GET', 'POST'])
+@login_required
+def delete_user_ingredients(user_id, cocktail_id, ingredient_id):
+
+    user = current_user
+    ingredient = UserCocktailIngredient.query.get_or_404(ingredient_id)
+
+    db.session.delete(ingredient)
+    db.session.commit()
+
+    return redirect(f"/user/{user_id}/{cocktail_id}/edit_cocktail")
+
+
 ################### cocktail routes
 
 
@@ -245,8 +370,7 @@ def drink_details(drink_id):
 
     saved_ids = [str(cocktail.id) for cocktail in current_user.saved_cocktails]
     
-    
-    print("15288" not in saved_ids)
+
     return render_template("display_cocktail.html", cocktail=cocktail, saved_ids = saved_ids)
     
 

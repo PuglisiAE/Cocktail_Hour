@@ -1,6 +1,6 @@
 
 import requests
-from models import db, connect_db, User, Cocktail, Notes, Saved, UserCocktail, UserCocktailIngredient
+from models import db, connect_db, User, Cocktail, Saved, UserCocktail
 
 cocktails_url = "http://www.thecocktaildb.com/api/json/v1/1"
 

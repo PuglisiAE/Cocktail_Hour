@@ -32,8 +32,10 @@ class User(db.Model, UserMixin):
     email = db.Column(db.Text, nullable=False, unique=True
     ) 
     dob = db.Column(db.DateTime, nullable=False)
-    notes = db.relationship('Notes', backref = "user")
+    # notes = db.relationship('Notes', backref = "user")
     saved_cocktails = db.relationship('Cocktail', secondary = "saved_cocktails", backref = "user")
+    user_cocktails = db.relationship('UserCocktail', backref = 'user')
+    
 
 
     def saved_cocktail(self, cocktail):
@@ -76,17 +78,17 @@ class Cocktail(db.Model):
     drink_img_url = db.Column(db.String(), nullable = True)
 
 
-class Notes(db.Model):
-    """Info about user notes"""
+# class Notes(db.Model):
+#     """Info about user notes"""
 
-    __tablename__ = "notes"
-    id = db.Column(db.Integer,
-                   primary_key=True,
-                   autoincrement=True)
+#     __tablename__ = "notes"
+#     id = db.Column(db.Integer,
+#                    primary_key=True,
+#                    autoincrement=True)
     
-    cocktail_id = db.Column(db.Integer, db.ForeignKey('cocktails.id'), primary_key = True)
+#     cocktail_id = db.Column(db.Integer, db.ForeignKey('cocktails.id'), primary_key = True)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key = True)
+#     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key = True)
 
 
 class Saved(db.Model):
@@ -109,17 +111,27 @@ class UserCocktail(db.Model):
                    autoincrement=True)
     
     name = db.Column(db.String(80), nullable = False)
-    ingredients = db.Column(db.String(), nullable = False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key = True)
+    instructions = db.Column(db.String(), nullable = False)
+    alcoholic = db.Column(db.String(), nullable = False)
+    glass = db.Column(db.String(), nullable = False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    drink_img_url = db.Column(db.String(), nullable = True)
+    recipe = db.relationship('UserCocktailIngredient', backref = 'user_cocktails')
 
 
 class UserCocktailIngredient(db.Model):
+    """user created ingredients for user_cocktails"""
+
+    __tablename__ = "user_cocktail_ingredients"
+
     id = db.Column(db.Integer,
                    primary_key=True,
                    autoincrement=True)
-    cocktail_id = db.Column(db.Integer, db.ForeignKey('user_cocktail.id'), primary_key = True)
-    ingredient = db.Column(db.String(), nullable = False)
+    cocktail_id = db.Column(db.Integer, db.ForeignKey('user_cocktails.id'))
+    name = db.Column(db.String(), nullable = False)
+    amount = db.Column(db.Float(), nullable = False)
+    measurement = db.Column(db.String(), nullable = False)
 
 
 
-  
+

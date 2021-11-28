@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<div class="row justify-content-md-center">
+    <div class="col-md-7 col-lg-5">
+      <h2 class="join-message">Edit Ingredients</h2>
+    <form method="POST" id="create_drink_form">
+        {{ form.hidden_tag() }}
+
+        {% for field in form if field.widget.input_type != 'hidden' and field.name != "recipe" %}
+        {% for error in field.errors %}
+          <span class="text-danger">{{ error }}</span>
+        {% endfor %}
+        {{ field(placeholder=field.label.text, class="form-control") }}
+
+      {% endfor %}
+      <button>Save</button>
+    </form>
+
+<form method = "POST" id="delete_ingredient" action = "/user/{{user_id}}/{{cocktail_id}}/{{ingredient_id}}/delete_ingredient">
+    <button class= "btn btn-danger  btn-block btn-sm" >Delete</button>
+</form>
+</div>
+</div>
+
+
+
+
+{% endblock %}
