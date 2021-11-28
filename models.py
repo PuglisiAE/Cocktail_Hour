@@ -32,7 +32,6 @@ class User(db.Model, UserMixin):
     email = db.Column(db.Text, nullable=False, unique=True
     ) 
     dob = db.Column(db.DateTime, nullable=False)
-    # notes = db.relationship('Notes', backref = "user")
     saved_cocktails = db.relationship('Cocktail', secondary = "saved_cocktails", backref = "user")
     user_cocktails = db.relationship('UserCocktail', backref = 'user')
     
@@ -78,27 +77,15 @@ class Cocktail(db.Model):
     drink_img_url = db.Column(db.String(), nullable = True)
 
 
-# class Notes(db.Model):
-#     """Info about user notes"""
-
-#     __tablename__ = "notes"
-#     id = db.Column(db.Integer,
-#                    primary_key=True,
-#                    autoincrement=True)
-    
-#     cocktail_id = db.Column(db.Integer, db.ForeignKey('cocktails.id'), primary_key = True)
-
-#     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key = True)
-
-
 class Saved(db.Model):
 
     """Info about saved cocktails"""
 
     __tablename__ = "saved_cocktails"
-    cocktail_id = db.Column(db.Integer, db.ForeignKey('cocktails.id'), primary_key = True)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key = True)
+    cocktail_id = db.Column(db.Integer, db.ForeignKey('cocktails.id', ondelete = "CASCADE"), primary_key = True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete = "CASCADE"), primary_key = True)
 
 
 class UserCocktail(db.Model):
@@ -114,9 +101,9 @@ class UserCocktail(db.Model):
     instructions = db.Column(db.String(), nullable = False)
     alcoholic = db.Column(db.String(), nullable = False)
     glass = db.Column(db.String(), nullable = False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete = "CASCADE"))
     drink_img_url = db.Column(db.String(), nullable = True)
-    recipe = db.relationship('UserCocktailIngredient', backref = 'user_cocktails')
+    recipe = db.relationship('UserCocktailIngredient', backref = 'user_cocktails', cascade = "all, delete-orphan")
 
 
 class UserCocktailIngredient(db.Model):
@@ -127,7 +114,7 @@ class UserCocktailIngredient(db.Model):
     id = db.Column(db.Integer,
                    primary_key=True,
                    autoincrement=True)
-    cocktail_id = db.Column(db.Integer, db.ForeignKey('user_cocktails.id'))
+    cocktail_id = db.Column(db.Integer, db.ForeignKey('user_cocktails.id', ondelete="CASCADE"))
     name = db.Column(db.String(), nullable = False)
     amount = db.Column(db.Float(), nullable = False)
     measurement = db.Column(db.String(), nullable = False)

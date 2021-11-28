@@ -3,8 +3,8 @@
 {% block content %}
 
 {% if drinks %}
-{% for drink in drinks %}
-<div class="card-columns">
+<div class="row row-cols-1 row-cols-md-2 g-4">
+  {% for drink in drinks %}
     <div class="card" style="width: 18rem;">
     <img class="card-img-top" src="{{drink.strDrinkThumb}}" alt="Card image cap">
     <div class="card-body">
@@ -12,8 +12,10 @@
       <a href="/drink/{{drink.idDrink}}" class="btn btn-primary btn-sm">Details</a>
     </div>
   </div>
+  {% endfor %}
 </div>
-{% endfor %}
+
+
 {% else %}
 <div>
     <h4>No Results!</h4>

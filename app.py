@@ -51,7 +51,7 @@ def login():
             return redirect(f"/user/{user.id}")
         else:
             """error handling for invalid credentials"""
-            flash("Invalid email or password", "danger")
+            flash("Invalid username or password", "danger")
             return redirect(url_for('login'))
     print("************", current_user)
             
@@ -88,7 +88,7 @@ def signup():
         try:
             db.session.commit()
             login_user(user)
-            return redirect(f"/home/{user.id}")
+            return redirect(f"/user/{user.id}")
 
         except IntegrityError:
             """handles create user errors if username already taken"""

@@ -3,6 +3,7 @@
 {% block content %}
 
 <h3>Saved Cocktails</h3>
+<div class="row row-cols-1 row-cols-md-2 g-4">
 {% for drink in user.saved_cocktails %}
 <div class="card-columns">
     <div class="card" style="width: 18rem;">
@@ -16,6 +17,9 @@
   </div>
 </div>
 {% endfor %}
+</div>
+
+
 
 
 <h3>Created Cocktails</h3>
@@ -33,7 +37,7 @@
           <ll class="list-group-item">Ingredient List:</a></li>
             {% for item in drink.recipe %}
     
-             <li style="list-style-type: none;">{{item.name}}: {{item.amount}}{{item.measurement}}</li>
+             <li>{{item.name}}: {{item.amount}}{{item.measurement}}</li>
             {% endfor %}
         </ul>
     </div>
