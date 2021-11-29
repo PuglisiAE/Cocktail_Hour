@@ -300,6 +300,7 @@ def get_random():
 @app.route("/drinks/<letter>", methods = ["GET"])
 @login_required
 def by_letter(letter):
+    """displays drinks starting with letter"""
     return render_template('drinks_list.html')
 
 @app.route("/display/name/<name>/", methods = ["GET"])
@@ -377,6 +378,7 @@ def drink_details(drink_id):
 @app.route("/drink/<drink_id>/save", methods=["POST"])
 @login_required
 def save_drink(drink_id):
+    """saves a drink to the user"""
 
     cocktail_from_api = CocktailDetails.get_drink_by_id(drink_id)
     my_cocktail = Cocktail(id = cocktail_from_api.drink_id, name=cocktail_from_api.name, drink_img_url=cocktail_from_api.img)
@@ -398,6 +400,7 @@ def save_drink(drink_id):
 @app.route("/drink/<drink_id>/delete", methods = ["POST"])
 @login_required
 def delete_saved_drink(drink_id):
+    """deletes a saved drink from user"""
 
     drink = Cocktail.query.get_or_404(drink_id)
     current_user.saved_cocktails.remove(drink)
@@ -409,21 +412,23 @@ def delete_saved_drink(drink_id):
 
     return redirect(f"/user/{current_user.id}")
 
-@app.route("/ingredients/list", methods = ["GET"])
-@login_required
-def list_ingredients():
-    ingredient_list = IngredientDetails.get_all_ingredients()
-    ingredients = [(ingredient.name) for ingredient in ingredient_list]
-    form = CreateDrinkForm()
-    form.ingredients.choices = ingredients
-    return render_template("create_cocktail.html", ingredients=ingredients, form=form)
+# @app.route("/ingredients/list", methods = ["GET"])
+# @login_required
+# def list_ingredients():
+#     """"""
+
+#     ingredient_list = CocktailDetails.get_all_ingredients()
+#     ingredients = [(ingredient.name) for ingredient in ingredient_list]
+#     form = CreateDrinkForm()
+#     form.ingredients.choices = ingredients
+#     return render_template("create_cocktail.html", ingredients=ingredients, form=form)
 
 
-@app.route("/ingredients/list", methods = ["POST"])
-@login_required
-def submit_ingredients():
-    ingredients = [(ingredient.name) for ingredient in ingredient_list]
-    if ingredient_form.validate_on_submit():
-        form = CreateDrinkForm(request.form)
-        form.check_options.choices = ingredients
-        return render_template("")
+# @app.route("/ingredients/list", methods = ["POST"])
+# @login_required
+# def submit_ingredients():
+#     ingredients = [(ingredient.name) for ingredient in ingredient_list]
+#     if ingredient_form.validate_on_submit():
+#         form = CreateDrinkForm(request.form)
+#         form.check_options.choices = ingredients
+#         return render_template("")
