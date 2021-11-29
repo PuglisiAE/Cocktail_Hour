@@ -6,21 +6,21 @@
 <div class="card-columns">
 <div class="card" style="width: 20rem;">
     <img class="card-img-top" src="{{cocktail.img}}" alt="Card image cap">
-    <div class="card-body">
+    <div class="card-body dark-mode">
       <h5 class="card-title">{{cocktail.name}}</h5>
       <p class="card-text">{{cocktail.instructions}}</p>
     </div>
-    <ul class="list-group list-group-flush">
-      <li class="list-group-item">Type: {{cocktail.alcoholic}}</li>
-      <li class="list-group-item">Glass: {{cocktail.glass}}</li>
-      <ll class="list-group-item">Ingredient List:</a></li>
+    <ul class="list-group list-group-flush dark-mode">
+      <li class="list-group-item dark-mode">Type: {{cocktail.alcoholic}}</li>
+      <li class="list-group-item dark-mode">Glass: {{cocktail.glass}}</li>
+      <ll class="list-group-item dark-mode">Ingredient List:</a></li>
         {% for item in cocktail.recipe %}
 
          <li style="list-style-type: none;" >{{item.ingredient}} - {{item.measurement}}</li>
         {% endfor %}
 
     </ul>
-    <div class="card-body">
+    <div class="card-body dark-mode">
       <a href="/random" class="card-link">Get Another Drink!</a>
       {% if cocktail.drink_id not in saved_ids %}
       <form action = "/drink/{{cocktail.drink_id}}/save" method = "POST">

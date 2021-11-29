@@ -2,13 +2,13 @@
 
 {% block content %}
 
-<h3>Saved Cocktails</h3>
-<div class="row row-cols-1 row-cols-md-2 g-4">
+<h3 class>Saved Cocktails</h3>
+<div class="row">
 {% for drink in user.saved_cocktails %}
-<div class="card-columns">
+<div class="card-columns col">
     <div class="card" style="width: 18rem;">
     <img class="card-img-top" src="{{drink.drink_img_url}}" alt="Card image cap">
-    <div class="card-body">
+    <div class="card-body dark-mode">
       <h5 class="card-title">{{drink.name}}</h5>
       <a href="/drink/{{drink.id}}" class="btn btn-primary btn-sm">Details</a>
     <form action ="/drink/{{drink.id}}/delete" method = "POST">
@@ -19,37 +19,39 @@
 {% endfor %}
 </div>
 
-
-
+<hr>
 
 <h3>Created Cocktails</h3>
+<div class="row">
 {% for drink in user.user_cocktails %}
-<div class="card-columns">
+<div class="card-columns col">
     <div class="card" style="width: 18rem;">
         <img class="card-img-top" src="{{drink.drink_img_url}}" alt="Card image cap">
-        <div class="card-body">
-          <h5 class="card-title">{{drink.name}}</h5>
-          <p class="card-text">{{drink.instructions}}</p>
+        <div class="card-body dark-mode">
+          <h5 class="card-title dark-mode">{{drink.name}}</h5>
+          <p class="card-text dark-mode">{{drink.instructions}}</p>
         </div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item">Type: {{drink.alcoholic}}</li>
-          <li class="list-group-item">Glass: {{drink.glass}}</li>
-          <ll class="list-group-item">Ingredient List:</a></li>
+          <li class="list-group-item dark-mode" >Type: {{drink.alcoholic}}</li>
+          <li class="list-group-item dark-mode">Glass: {{drink.glass}}</li>
+          <ll class="list-group-item dark-mode">Ingredient List:</a></li>
             {% for item in drink.recipe %}
     
-             <li>{{item.name}}: {{item.amount}}{{item.measurement}}</li>
+             <li style="list-style-type: none;">{{item.name}}: {{item.amount}}{{item.measurement}}</li>
             {% endfor %}
         </ul>
-    </div>
-    <div>
+    <div class = "dark-mode">
     <form action ="/user/{{user.id}}/{{drink.id}}/delete" method = "POST">
       <button  class = "btn btn-danger btn-sm">Delete</button> </form>  
     <form action ="/user/{{user.id}}/{{drink.id}}/edit_cocktail" method = "POST">
       <button  class = "btn btn-primary btn-sm">Edit</button> </form> 
     </div>
     </div>
+    <div>
+ 
+    </div>
   </div>
-</div>
+
 {% endfor %}
 
 {% endblock %}

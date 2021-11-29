@@ -1,0 +1,41 @@
+body {
+	background-image: url("https://images.unsplash.com/photo-1543007630-9710e4a00a20?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8YmFyfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=1400&q=60");
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-attachment: fixed;
+}
+
+.navbar-inner {
+	background: transparent;
+	color: white;
+}
+
+h1 {
+	color: white;
+	font-family: cursive;
+}
+
+.card {
+	border-color: black;
+	margin: 0 auto;
+	float: none;
+	margin-bottom: 10px;
+}
+
+.dark-mode {
+	background-color: black;
+	color: white;
+}
+
+h3 {
+	color: white;
+	font-family: cursive;
+}
+
+.welcome {
+	font-family: cursive;
+	color: white;
+	font-size: x-large;
+	background-color: rgba(201, 76, 76, 0.3);
+}

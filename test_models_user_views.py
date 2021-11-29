@@ -96,3 +96,6 @@ class UserModelTestCase(TestCase):
 
             self.assertEqual(resp.status_code, 200)
             self.assertNotIn('testname', html)
+
+
+    
