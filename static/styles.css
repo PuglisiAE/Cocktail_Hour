@@ -17,7 +17,8 @@ h1 {
 }
 
 .card {
-	border-color: black;
+	border-color: rgba(204, 133, 0, 0.637);
+	border-width: 0.5em;
 	margin: 0 auto;
 	float: none;
 	margin-bottom: 10px;
@@ -25,6 +26,11 @@ h1 {
 
 .dark-mode {
 	background-color: black;
+	color: white;
+}
+
+.darkish {
+	background-color: rgba(0, 0, 0, 0.8);
 	color: white;
 }
 
