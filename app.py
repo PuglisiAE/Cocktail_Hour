@@ -6,15 +6,15 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from sqlalchemy.exc import IntegrityError
 from api_helper import CocktailDetails, cocktails_url
 import string
-
+import os
 
 
 app=Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://@localhost:5433/cocktails'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://@localhost:5433/cocktails')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
-app.config['SECRET_KEY'] = "s0m3_s3cRe7_K8Y"
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'shh')
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 debug = DebugToolbarExtension(app)
 login_manager = LoginManager()
@@ -34,8 +34,11 @@ def load_user(user_id):
 @app.route("/")
 def welcome():
     """Display welcome/login/signup links"""
-    
-    return render_template("welcome.html")
+    if not current_user.is_active:
+        return render_template("welcome.html")
+        
+    else:
+        return redirect("/home")
 
 ################### authentication routes
 
@@ -48,7 +51,7 @@ def login():
         if user:
             """log in user & redirect to user home page"""
             login_user(user)
-            return redirect(f"/user/{user.id}")
+            return redirect(f"/home")
         else:
             """error handling for invalid credentials"""
             flash("Invalid username or password", "danger")
@@ -88,7 +91,7 @@ def signup():
         try:
             db.session.commit()
             login_user(user)
-            return redirect(f"/user/{user.id}")
+            return redirect(f"/home")
 
         except IntegrityError:
             """handles create user errors if username already taken"""
@@ -102,11 +105,11 @@ def signup():
 
 ################### user routes
 
-@app.route("/home/<int:user_id>")
+@app.route("/home")
 @login_required
-def home(user_id):
+def home():
     """Display homepage"""
-    current_user = User.query.get_or_404(user_id)
+    user=current_user
     return render_template('home.html', current_user=current_user)
 
 
@@ -287,6 +290,15 @@ def delete_user_ingredients(user_id, cocktail_id, ingredient_id):
     return redirect(f"/user/{user_id}/{cocktail_id}/edit_cocktail")
 
 
+@app.route("/user/<int:user_id>/user_cocktail/<int:cocktail_id>", methods = ['GET'])
+@login_required
+def display_user_cocktail_details(cocktail_id, user_id):
+
+        user = current_user
+        cocktail = UserCocktail.query.get_or_404(cocktail_id)
+
+        return render_template('display_user_cocktail.html', cocktail=cocktail, user = user)
+
 ################### cocktail routes
 
 
@@ -334,7 +346,6 @@ def search():
     name_form = SearchByNameForm()
     ingredient_form = SearchByIngredientForm()
     ingredient_choices = CocktailDetails.get_all_ingredients()
-    # ingredient_form.ingredient.choices = ingredient_choices
     range = list(string.ascii_uppercase)
 
     return render_template('search.html', name_form = name_form, ingredient_form = ingredient_form, range = range)
@@ -412,23 +423,3 @@ def delete_saved_drink(drink_id):
 
     return redirect(f"/user/{current_user.id}")
 
-# @app.route("/ingredients/list", methods = ["GET"])
-# @login_required
-# def list_ingredients():
-#     """"""
-
-#     ingredient_list = CocktailDetails.get_all_ingredients()
-#     ingredients = [(ingredient.name) for ingredient in ingredient_list]
-#     form = CreateDrinkForm()
-#     form.ingredients.choices = ingredients
-#     return render_template("create_cocktail.html", ingredients=ingredients, form=form)
-
-
-# @app.route("/ingredients/list", methods = ["POST"])
-# @login_required
-# def submit_ingredients():
-#     ingredients = [(ingredient.name) for ingredient in ingredient_list]
-#     if ingredient_form.validate_on_submit():
-#         form = CreateDrinkForm(request.form)
-#         form.check_options.choices = ingredients
-#         return render_template("")

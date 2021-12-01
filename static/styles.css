@@ -30,11 +30,19 @@ h1 {
 }
 
 .darkish {
+	background-color: rgba(0, 0, 0, 0.9);
+	color: white;
+}
+
+.ingredients {
+	margin: 0 auto;
+	float: none;
+	margin-bottom: 10px;
 	background-color: rgba(0, 0, 0, 0.8);
 	color: white;
 }
 
-h3 {
+h2 {
 	color: white;
 	font-family: cursive;
 }

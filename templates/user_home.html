@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h3 class>Saved Cocktails</h3>
+<h2 class="text-center darkish">Saved Cocktails</h2>
 <div class="row">
 {% for drink in user.saved_cocktails %}
 <div class="card-columns col">
@@ -21,37 +21,23 @@
 
 <hr>
 
-<h3>Created Cocktails</h3>
+<h2 class="text-center darkish">Created Cocktails</h2>
 <div class="row">
 {% for drink in user.user_cocktails %}
 <div class="card-columns col">
-    <div class="card" style="width: 18rem;">
-        <img class="card-img-top" src="{{drink.drink_img_url}}" alt="Card image cap">
-        <div class="card-body dark-mode">
-          <h5 class="card-title dark-mode">{{drink.name}}</h5>
-          <p class="card-text dark-mode">{{drink.instructions}}</p>
-        </div>
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item dark-mode" >Type: {{drink.alcoholic}}</li>
-          <li class="list-group-item dark-mode">Glass: {{drink.glass}}</li>
-          <ll class="list-group-item dark-mode">Ingredient List:</a></li>
-            {% for item in drink.recipe %}
-    
-             <li style="list-style-type: none;">{{item.name}}: {{item.amount}}{{item.measurement}}</li>
-            {% endfor %}
-        </ul>
-    <div class = "dark-mode">
-    <form action ="/user/{{user.id}}/{{drink.id}}/delete" method = "POST">
-      <button  class = "btn btn-danger btn-sm">Delete</button> </form>  
-    <form action ="/user/{{user.id}}/{{drink.id}}/edit_cocktail" method = "POST">
-      <button  class = "btn btn-primary btn-sm">Edit</button> </form> 
-    </div>
-    </div>
-    <div>
- 
-    </div>
+  <div class="card" style="width: 18rem;">
+  <img class="card-img-top" src="{{drink.drink_img_url}}" alt="Card image cap">
+  <div class="card-body dark-mode">
+    <h5 class="card-title">{{drink.name}}</h5>
+    <a href="/user/{{user.id}}/user_cocktail/{{drink.id}}" class="btn btn-primary btn-sm">Details</a>
+  <form action ="/drink/{{drink.id}}/delete" method = "POST">
+    <button  class = "btn btn-danger btn-sm">Delete</button> </form>  
   </div>
-
+</div>
+</div>
 {% endfor %}
+</div>
+
+
 
 {% endblock %}

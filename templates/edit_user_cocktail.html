@@ -5,7 +5,7 @@
 
 
 <div class="row justify-content-md-center">
-    <div class="col-md-7 col-lg-5 dark-mode">
+    <div class="col-md-7 col-lg-5 ingredients">
       <h2 class="join-message">Edit Cocktail</h2>
 
       <form method="POST" id="user_form">
@@ -25,18 +25,17 @@
   </div>
 
 
-<div class="card-columns">
+
     <div class="col-md-7 col-lg-5">
-    <div class="card" style="width: 18rem;">
-        <h4 class = "text-dark">Ingredients:</h4>
+    
+        <h4 class = "text-light">Ingredients:</h4>
             {% for item in cocktail.recipe %}
     
-             <li style="list-style-type: none;" class = "text-dark">Edit<a href = "/user/{{user.id}}/{{cocktail.id}}/{{item.id}}/edit_ingredients"> {{item.name}}: {{item.amount}}{{item.measurement}} </a></li>
+             <li style="list-style-type: none;"><a href = "/user/{{user.id}}/{{cocktail.id}}/{{item.id}}/edit_ingredients" class = "text-light"> {{item.name}}: {{item.amount}}{{item.measurement}} </a></li>
             {% endfor %}
         </ul>
-    </div>
-    <a href = "/user/{{current_user.id}}/{{cocktail.id}}/add_ingredients" class = "btn btn-primary btn-sm">Add</a>
-</div>
+   
+    <a href = "/user/{{current_user.id}}/{{cocktail.id}}/add_ingredients" class = "btn btn-primary btn-sm">Add Ingredient</a>
 </div>
 
 

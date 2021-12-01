@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, BooleanField, DateField, SelectField, widgets, SelectMultipleField, Form, DecimalField
+from wtforms import StringField, PasswordField, TextAreaField, BooleanField, DateField, SelectField, widgets, SelectMultipleField, Form, FloatField, BooleanField
 from datetime import datetime
-from wtforms.validators import DataRequired, Length, InputRequired, Email
+from wtforms.validators import DataRequired, Length, InputRequired, Email, NumberRange
 from api_helper import CocktailDetails
 
 
@@ -20,7 +20,6 @@ class AddUserForm(FlaskForm):
     password = PasswordField('Password', validators=[Length(min=8)])
     dob =  DateField('Date of Birth', format = '%Y-%m-%d', default=datetime.now(), validators=[InputRequired()])
 
-
 class EditUserForm(FlaskForm):
     """Form for editing user"""
 
@@ -28,6 +27,10 @@ class EditUserForm(FlaskForm):
     email = StringField('E-mail', validators=[DataRequired(), Email()])
     password = PasswordField('Check-Password', validators=[Length(min=8)])
     dob =  DateField('Date of Birth', format = '%Y-%m-%d', default=datetime.now(), validators=[InputRequired()])
+        
+
+
+
 
     
 class SearchByNameForm(FlaskForm):
@@ -41,15 +44,10 @@ class SearchByIngredientForm(FlaskForm):
     ingredient = SelectField('Ingredient', choices = CocktailDetails.get_all_ingredients(), validators = [DataRequired()])
 
 
-# class MultiCheckboxField(SelectMultipleField):
-#     widget = widgets.ListWidget(prefix_label=False)
-#     option_widget = widgets.CheckboxInput()
-
-
 class IngredientForm(FlaskForm):
-    name = StringField('Ingredient')
-    amount = StringField('Amount')
-    measurement = StringField('Measurement')
+    name = StringField('Ingredient', validators = [DataRequired()])
+    amount = FloatField('Amount', validators = [DataRequired(message = "Must be a valid number")])
+    measurement = SelectField('Measurement', choices = ["cubes", "cup", "cl", "dash", "drop", "gal", "garnish", "l", "ml", "oz", "part", "pint", "shot", "sprig", "Tbsp", "tsp", "wedge", "whole"])
 
 class CreateDrinkForm(FlaskForm):
     name = StringField('Cocktail Name')
